@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Monitor</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Site Monitor!</h1>
+        <p>Live Status:</p>
+    </header>
+
+    <div id="status-container"></div>
+
+    <!-- Modal for showing detailed status -->
+    <div id="siteModal" class="modal">
+        <div class="modal-content animated">
+            <span class="close">&times;</span>
+            <h2 id="modalSiteName">Site Name</h2>
+            <canvas id="uptimeChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Site Monitor</p>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const statusContainer = document.getElementById('status-container');
+        const modal = document.getElementById('siteModal');
+        const modalSiteName = document.getElementById('modalSiteName');
+        const closeModal = document.querySelector('.close');
+
+        // Close modal functionality
+        closeModal.onclick = function() {
+            modal.style.display = 'none';
+            modal.classList.remove('fade-in'); // Reset animation class
+        };
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('fade-in');
+            }
+        };
+
+        // Fetch site status from socket.io
+        socket.on('siteStatusUpdate', (data) => {
+            let existingSiteElement = document.querySelector(`[data-url="${data.url}"]`);
+            
+            if (existingSiteElement) {
+                // Update existing site status
+                existingSiteElement.querySelector('.uptime').textContent = `Uptime: ${data.uptime}%`;
+                existingSiteElement.querySelector('.status').textContent = data.status.toUpperCase();
+                existingSiteElement.querySelector('.status').className = `status ${data.status}`;
+            } else {
+                // Create a new site status element
+                let siteElement = document.createElement('div');
+                siteElement.className = 'site-status-box';
+                siteElement.setAttribute('data-url', data.url); // Use URL as a unique identifier
+                siteElement.innerHTML = `
+                    <div class="site-status-info">
+                        <span class="site-name">${data.name}</span>
+                        <span class="uptime">Uptime: ${data.uptime}%</span>
+                        <span class="status ${data.status}">${data.status.toUpperCase()}</span>
+                    </div>
+                `;
+                siteElement.onclick = () => openSiteModal(data);  // Add click event to open modal
+                statusContainer.appendChild(siteElement);
+            }
+        });
+
+        // Function to open the modal and show detailed info
+        function openSiteModal(data) {
+            modal.style.display = 'block';
+            modal.classList.add('fade-in'); // Add fade-in animation class
+            modalSiteName.textContent = data.name;
+
+            // Load the chart in the modal (small/medium size)
+            const ctx = document.getElementById('uptimeChart').getContext('2d');
+            const uptimeData = data.status === 'up' ? [100] : [0]; // Chart data based on status
+            const uptimeHistory = new Array(7).fill(0).map((_, index) => index < uptimeData.length ? uptimeData[index] : 0);
+
+            const uptimeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1d', '2d', '3d', '4d', '5d', '6d', '7d'],
+                    datasets: [{
+                        label: 'Uptime %',
+                        data: uptimeHistory, // Fill in uptime data
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100, // Maximum value of 100%
+                        }
+                    },
+                    animation: {
+                        duration: 1500, // Chart animation duration
+                        easing: 'easeOutBounce' // Chart animation effect
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
