@@ -1,0 +1,114 @@
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #ADD8E6;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+}
+
+#status-container {
+    padding: 20px;
+}
+
+.site-status-box {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 10px auto;
+    width: 80%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.site-status-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.status.up {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.status.down {
+    background-color: #F44336;
+    color: white;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 50%;
+    border-radius: 8px;
+    position: relative;
+    animation: fadeIn 0.4s; /* Animation when modal appears */
+}
+
+.close {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Animation for modal */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Chart styles */
+canvas {
+    max-width: 80%;  /* Ensure chart stays centered and medium-sized */
+    margin: 20px auto;
+    height: 300px; /* Medium size for the chart */
+}
+
+#siteImage {
+    max-width: 100%;
+    height: auto;
+    margin-top: 20px;
+}
